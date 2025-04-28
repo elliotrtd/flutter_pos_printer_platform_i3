@@ -15,6 +15,9 @@ import com.sersoluciones.flutter_pos_printer_platform.R
 import java.nio.charset.Charset
 import java.util.*
 
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+
 class USBPrinterService private constructor(private var mHandler: Handler?) {
     private var mContext: Context? = null
     private var mUSBManager: UsbManager? = null
@@ -77,7 +80,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
         }
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        mContext!!.registerReceiver(mUsbDeviceReceiver, filter)
+        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, RECEIVER_NOT_EXPORTED)
         Log.v(LOG_TAG, "ESC/POS Printer initialized")
     }
 
