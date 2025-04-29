@@ -77,7 +77,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
         }
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, null, null, Context.RECEIVER_NOT_EXPORTED)
+        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, null, null, mContext.RECEIVER_NOT_EXPORTED)
         Log.v(LOG_TAG, "ESC/POS Printer initialized")
     }
 
