@@ -15,9 +15,6 @@ import com.sersoluciones.flutter_pos_printer_platform.R
 import java.nio.charset.Charset
 import java.util.*
 
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
-
 class USBPrinterService private constructor(private var mHandler: Handler?) {
     private var mContext: Context? = null
     private var mUSBManager: UsbManager? = null
@@ -80,16 +77,18 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
         }
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, RECEIVER_EXPORTED)
+        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, null, null, Context.RECEIVER_NOT_EXPORTED)
         Log.v(LOG_TAG, "ESC/POS Printer initialized")
     }
 
     fun closeConnectionIfExists() {
         if (mUsbDeviceConnection != null) {
+            Log.v(LOG_TAG, "closing connection")
             mUsbDeviceConnection!!.releaseInterface(mUsbInterface)
             mUsbDeviceConnection!!.close()
             mUsbInterface = null
             mEndPoint = null
+            Log.v("setting null", "mUsbDevice")
             mUsbDevice = null
             mUsbDeviceConnection = null
         }
@@ -114,7 +113,9 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
                     if ((usbDevice.vendorId == vendorId) && (usbDevice.productId == productId)) {
                         Log.v(LOG_TAG, "Request for device: vendor_id: " + usbDevice.vendorId + ", product_id: " + usbDevice.productId)
                         closeConnectionIfExists()
+                        Log.v(LOG_TAG, "request permission")
                         mUSBManager!!.requestPermission(usbDevice, mPermissionIndent)
+                        Log.v(LOG_TAG, "connecting")
                         state = STATE_USB_CONNECTING
                         mHandler?.obtainMessage(STATE_USB_CONNECTING)?.sendToTarget()
                         return true
