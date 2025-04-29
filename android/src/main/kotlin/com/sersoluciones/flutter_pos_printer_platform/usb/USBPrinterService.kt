@@ -16,7 +16,7 @@ import java.nio.charset.Charset
 import java.util.*
 
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
+import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
 
 class USBPrinterService private constructor(private var mHandler: Handler?) {
     private var mContext: Context? = null
@@ -80,7 +80,7 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
         }
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, RECEIVER_NOT_EXPORTED)
+        mContext!!.registerReceiver(mUsbDeviceReceiver, filter, RECEIVER_EXPORTED)
         Log.v(LOG_TAG, "ESC/POS Printer initialized")
     }
 
