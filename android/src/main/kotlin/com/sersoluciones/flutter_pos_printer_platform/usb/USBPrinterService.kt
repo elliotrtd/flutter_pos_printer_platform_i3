@@ -33,7 +33,10 @@ class USBPrinterService private constructor(private var mHandler: Handler?) {
     private val mUsbDeviceReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
+            Log.v(LOG_TAG, "RECEIVER")
             if ((ACTION_USB_PERMISSION == action)) {
+                Log.v(LOG_TAG, "ACTION PERMISSION")
+
                 synchronized(this) {
                     val usbDevice: UsbDevice? = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE)
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
