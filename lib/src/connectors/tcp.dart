@@ -7,7 +7,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:flutter_pos_printer_platform_image_3/discovery.dart';
 import 'package:flutter_pos_printer_platform_image_3/printer.dart';
-import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
+import 'package:ping_discover_network_plus/ping_discover_network_plus.dart';
 
 class TcpPrinterInput extends BasePrinterInput {
   final String ipAddress;
@@ -36,7 +36,8 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
   TcpPrinterConnector();
   Socket? _socket;
 
-  static Future<List<PrinterDiscovered<TcpPrinterInfo>>> discoverPrinters({String? ipAddress, int? port, Duration? timeOut}) async {
+  static Future<List<PrinterDiscovered<TcpPrinterInfo>>> discoverPrinters(
+      {String? ipAddress, int? port, Duration? timeOut}) async {
     final List<PrinterDiscovered<TcpPrinterInfo>> result = [];
     final defaultPort = port ?? 9100;
 
@@ -49,7 +50,7 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
     final String subnet = deviceIp.substring(0, deviceIp.lastIndexOf('.'));
     // final List<String> ips = List.generate(255, (index) => '$subnet.$index');
 
-    final stream = NetworkAnalyzer.discover2(
+    final stream = NetworkAnalyzer.i.discover2(
       subnet,
       defaultPort,
       timeout: timeOut ?? Duration(milliseconds: 4000),
@@ -57,7 +58,8 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
 
     await for (var addr in stream) {
       if (addr.exists) {
-        result.add(PrinterDiscovered<TcpPrinterInfo>(name: "${addr.ip}:$defaultPort", detail: TcpPrinterInfo(address: addr.ip)));
+        result.add(PrinterDiscovered<TcpPrinterInfo>(
+            name: "${addr.ip}:$defaultPort", detail: TcpPrinterInfo(address: addr.ip)));
       }
     }
 
@@ -81,7 +83,7 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
     final String subnet = deviceIp!.substring(0, deviceIp.lastIndexOf('.'));
     // final List<String> ips = List.generate(255, (index) => '$subnet.$index');
 
-    final stream = NetworkAnalyzer.discover2(subnet, defaultPort);
+    final stream = NetworkAnalyzer.i.discover2(subnet, defaultPort);
 
     await for (var data in stream.map((message) => message)) {
       if (data.exists) {
