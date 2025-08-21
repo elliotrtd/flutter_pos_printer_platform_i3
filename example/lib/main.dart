@@ -139,7 +139,8 @@ class _MyAppState extends State<MyApp> {
 
   void selectDevice(BluetoothPrinter device) async {
     if (selectedPrinter != null) {
-      if ((device.address != selectedPrinter!.address) || (device.typePrinter == PrinterType.usb && selectedPrinter!.vendorId != device.vendorId)) {
+      if ((device.address != selectedPrinter!.address) ||
+          (device.typePrinter == PrinterType.usb && selectedPrinter!.vendorId != device.vendorId)) {
         await PrinterManager.instance.disconnect(type: selectedPrinter!.typePrinter);
       }
     }
@@ -174,7 +175,10 @@ class _MyAppState extends State<MyApp> {
         bytes += generator.cut();
         await printerManager.connect(
             type: bluetoothPrinter.typePrinter,
-            model: UsbPrinterInput(name: bluetoothPrinter.deviceName, productId: bluetoothPrinter.productId, vendorId: bluetoothPrinter.vendorId));
+            model: UsbPrinterInput(
+                name: bluetoothPrinter.deviceName,
+                productId: bluetoothPrinter.productId,
+                vendorId: bluetoothPrinter.vendorId));
         pendingTask = null;
         break;
       case PrinterType.bluetooth:
@@ -192,9 +196,9 @@ class _MyAppState extends State<MyApp> {
       case PrinterType.network:
         bytes += generator.feed(2);
         bytes += generator.cut();
-        await printerManager.connect(type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+        await printerManager.connect(
+            type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         break;
-      default:
     }
     if (bluetoothPrinter.typePrinter == PrinterType.bluetooth && Platform.isAndroid) {
       if (_currentStatus == BTStatus.connected) {
@@ -214,7 +218,10 @@ class _MyAppState extends State<MyApp> {
       case PrinterType.usb:
         await printerManager.connect(
             type: selectedPrinter!.typePrinter,
-            model: UsbPrinterInput(name: selectedPrinter!.deviceName, productId: selectedPrinter!.productId, vendorId: selectedPrinter!.vendorId));
+            model: UsbPrinterInput(
+                name: selectedPrinter!.deviceName,
+                productId: selectedPrinter!.productId,
+                vendorId: selectedPrinter!.vendorId));
         _isConnected = true;
         break;
       case PrinterType.bluetooth:
@@ -227,10 +234,10 @@ class _MyAppState extends State<MyApp> {
                 autoConnect: _reconnect));
         break;
       case PrinterType.network:
-        await printerManager.connect(type: selectedPrinter!.typePrinter, model: TcpPrinterInput(ipAddress: selectedPrinter!.address!));
+        await printerManager.connect(
+            type: selectedPrinter!.typePrinter, model: TcpPrinterInput(ipAddress: selectedPrinter!.address!));
         _isConnected = true;
         break;
-      default:
     }
 
     setState(() {});
@@ -271,7 +278,8 @@ class _MyAppState extends State<MyApp> {
                             onPressed: selectedPrinter == null || !_isConnected
                                 ? null
                                 : () {
-                                    if (selectedPrinter != null) printerManager.disconnect(type: selectedPrinter!.typePrinter);
+                                    if (selectedPrinter != null)
+                                      printerManager.disconnect(type: selectedPrinter!.typePrinter);
                                     setState(() {
                                       _isConnected = false;
                                     });
@@ -376,7 +384,8 @@ class _MyAppState extends State<MyApp> {
                               leading: selectedPrinter != null &&
                                       ((device.typePrinter == PrinterType.usb && Platform.isWindows
                                               ? device.deviceName == selectedPrinter!.deviceName
-                                              : device.vendorId != null && selectedPrinter!.vendorId == device.vendorId) ||
+                                              : device.vendorId != null &&
+                                                  selectedPrinter!.vendorId == device.vendorId) ||
                                           (device.address != null && selectedPrinter!.address == device.address))
                                   ? const Icon(
                                       Icons.check,
