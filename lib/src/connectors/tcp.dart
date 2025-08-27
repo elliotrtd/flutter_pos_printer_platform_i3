@@ -7,7 +7,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:flutter_pos_printer_platform_image_3/discovery.dart';
 import 'package:flutter_pos_printer_platform_image_3/printer.dart';
-import 'package:ping_discover_network_plus/ping_discover_network_plus.dart';
+import 'package:network_port_scanner/network_port_scanner.dart';
 
 class TcpPrinterInput extends BasePrinterInput {
   final String ipAddress;
@@ -50,17 +50,16 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
     final String subnet = deviceIp.substring(0, deviceIp.lastIndexOf('.'));
     // final List<String> ips = List.generate(255, (index) => '$subnet.$index');
 
-    final stream = NetworkAnalyzer.i.discover2(
-      subnet,
-      defaultPort,
-      timeout: timeOut ?? Duration(milliseconds: 4000),
+    List<String> results = await NetworkScanner.scanNetwork(
+      timeout: 1000,
+      customSubnet: subnet,
+      port: defaultPort,
+      skipDeviceIP: true,
     );
 
-    await for (var addr in stream) {
-      if (addr.exists) {
-        result.add(PrinterDiscovered<TcpPrinterInfo>(
-            name: "${addr.ip}:$defaultPort", detail: TcpPrinterInfo(address: addr.ip)));
-      }
+    for (var addr in results) {
+      result
+          .add(PrinterDiscovered<TcpPrinterInfo>(name: "${addr}:$defaultPort", detail: TcpPrinterInfo(address: addr)));
     }
 
     return result;
@@ -83,12 +82,15 @@ class TcpPrinterConnector implements PrinterConnector<TcpPrinterInput> {
     final String subnet = deviceIp!.substring(0, deviceIp.lastIndexOf('.'));
     // final List<String> ips = List.generate(255, (index) => '$subnet.$index');
 
-    final stream = NetworkAnalyzer.i.discover2(subnet, defaultPort);
+    List<String> results = await NetworkScanner.scanNetwork(
+      timeout: 1000,
+      customSubnet: subnet,
+      port: defaultPort,
+      skipDeviceIP: true,
+    );
 
-    await for (var data in stream.map((message) => message)) {
-      if (data.exists) {
-        yield PrinterDevice(name: "${data.ip}:$defaultPort", address: data.ip);
-      }
+    for (var addr in results) {
+      yield PrinterDevice(name: "${addr}:$defaultPort", address: addr);
     }
   }
 
