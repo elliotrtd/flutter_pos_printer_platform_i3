@@ -98,8 +98,9 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
 
   static DiscoverResult<BluetoothPrinterDevice> discoverPrinters({bool isBle = false}) async {
     if (Platform.isAndroid) {
-      final List<dynamic> results =
-          isBle ? await flutterPrinterChannel.invokeMethod('getBluetoothLeList') : await flutterPrinterChannel.invokeMethod('getBluetoothList');
+      final List<dynamic> results = isBle
+          ? await flutterPrinterChannel.invokeMethod('getBluetoothLeList')
+          : await flutterPrinterChannel.invokeMethod('getBluetoothList');
       return results
           .map((dynamic r) => PrinterDiscovered<BluetoothPrinterDevice>(
                 name: r['name'],
@@ -126,7 +127,9 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
     _scanResults.add(<PrinterDevice>[]);
 
     if (Platform.isAndroid) {
-      isBle ? flutterPrinterChannel.invokeMethod('getBluetoothLeList') : flutterPrinterChannel.invokeMethod('getBluetoothList');
+      isBle
+          ? flutterPrinterChannel.invokeMethod('getBluetoothLeList')
+          : flutterPrinterChannel.invokeMethod('getBluetoothList');
 
       await for (dynamic data in _methodStream
           .where((m) => m.method == "ScanResult")
@@ -155,7 +158,6 @@ class BluetoothPrinterConnector implements PrinterConnector<BluetoothPrinterInpu
           .takeUntil(Rx.merge(killStreams))
           .doOnDone(stopScan)
           .map((message) => message)) {
-        print('Scan result: $data');
         final device = PrinterDevice(name: data['name'] as String, address: data['address'] as String?);
         if (!_addDevice(device)) continue;
         yield device;

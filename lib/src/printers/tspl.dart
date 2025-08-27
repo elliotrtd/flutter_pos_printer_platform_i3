@@ -2,7 +2,7 @@ import 'dart:core';
 import 'dart:typed_data';
 
 import 'package:flutter_pos_printer_platform_image_3/printer.dart';
-import 'package:image_v3/image_v3.dart';
+import 'package:image/image.dart' as img;
 
 import '../utils.dart';
 
@@ -183,7 +183,7 @@ class TsplPrinter<T> extends GenericPrinter<T> {
 
   @override
   Future<bool> image(Uint8List image, {int threshold = 150}) async {
-    final decodedImage = decodeImage(image)!;
+    final decodedImage = img.decodeImage(image)!;
     final rasterizeImage = _toRaster(decodedImage, dpi: int.parse(dpi));
     final converted = toPixel(ImageData(width: decodedImage.width, height: decodedImage.height),
         paperWidth: int.parse(_sizeWidth), dpi: int.parse(dpi), isTspl: true);
@@ -195,7 +195,8 @@ class TsplPrinter<T> extends GenericPrinter<T> {
         List<int> buffer = [];
         buffer += this._config.codeUnits;
         buffer += Command.clearCache().codeUnits;
-        buffer += Command.imageString('0', '0', converted.width.toString(), converted.height.toString(), mode: '0').codeUnits;
+        buffer +=
+            Command.imageString('0', '0', converted.width.toString(), converted.height.toString(), mode: '0').codeUnits;
         buffer += rasterizeImage.data;
         buffer += Command.EOL_HEX;
         buffer += Command.printIt('1', repeat: '1').codeUnits;
@@ -207,22 +208,26 @@ class TsplPrinter<T> extends GenericPrinter<T> {
     }, delayMs: ms);
   }
 
-  ImageRaster _toRaster(Image imgSrc, {int dpi = 200}) {
+  ImageRaster _toRaster(img.Image imgSrc, {int dpi = 200}) {
     // 200 DPI : 1 mm = 8 dots
     // 300 DPI : 1 mm = 12 dots
     // width 35mm = 280px
     // height 25mm = 200px
     final int multiplier = dpi == 200 ? 8 : 12;
-    final Image image = copyResize(imgSrc,
-        width: int.parse(this._sizeWidth) * multiplier, height: int.parse(this._sizeHeight) * multiplier, interpolation: Interpolation.linear);
+    final image = img.resize(imgSrc,
+        width: int.parse(this._sizeWidth) * multiplier,
+        height: int.parse(this._sizeHeight) * multiplier,
+        interpolation: img.Interpolation.linear);
+
     final int widthPx = image.width;
     final int heightPx = image.height;
     final int widthBytes = widthPx ~/ 8; // one byte is 8 bits
-    final List<int> imageBytes = image.getBytes(format: Format.argb);
+    final List<int> imageBytes = image.getBytes(order: img.ChannelOrder.argb);
 
     List<int> monoPixel = [];
     for (int i = 0; i < imageBytes.length; i += 4) {
-      bool shouldBeWhite = imageBytes[i + 3] == 0 || (imageBytes[i] > 100 && imageBytes[i + 1] > 100 && imageBytes[i + 2] > 100);
+      bool shouldBeWhite =
+          imageBytes[i + 3] == 0 || (imageBytes[i] > 100 && imageBytes[i + 1] > 100 && imageBytes[i + 2] > 100);
       monoPixel.add(shouldBeWhite ? 1 : 0);
     }
 
